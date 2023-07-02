@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'Leaflet',
         'USER': 'postgres',
-        'PASSWORD': '007',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
