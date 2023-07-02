@@ -1,0 +1,77 @@
+{% extends 'store_data.html' %}
+
+{% block content %}
+<div class="map">
+    <form method="POST">
+    {% csrf_token %}
+    <labe style="color: #ccc5b0;">Latitude</labe>
+    <input type="text" id="lat" name="lat" style="background-color: white; border-radius: 5px; text-align: center; width: 200px; margin-bottom: 10px;">
+    
+    <label style="color: rgb(204, 197, 176);">Longitude</label>
+    <input type="text" id="long" name="long" style="background-color: white; border-radius: 5px; text-align: center; width: 200px; margin-bottom: 10px;">
+
+    <input type="submit" class="sub" value="Save marker" name="saveMarker" style="border-radius: 5px; background-color: white; margin-bottom: 10px;font-family:monospace;">
+    </form>     
+    <button onclick="updateNode()" class="sub" style="border-radius: 5px; background-color: white; margin-bottom: 10px;font-family:monospace;">Update Marker</button>
+    <div class='col-6 rounded ' id="map" style="width: 890px;height: 565px; box-sizing:border-box; margin: auto; border-radius: 5px;box-shadow: 5px 5px 5px 5px #0000008c;">
+        <div class="leaflet-control"></div>  
+    </div>
+</div>
+
+
+<script>
+var map = L.map('map').setView([37.21, 10.12], 12.5);
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map);
+
+
+
+// Create the sidebar control
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+    draw: {
+        polygon: false, // desable polygon tool
+        polyline: false, // desable polyline tool
+        circle: false, // desable circle tool
+        rectangle: false, // desable rectangle tool
+        marker: true, // Enable marker tool
+        // Add more tool options here as needed
+    }
+});
+map.addControl(drawControl);
+
+// Event listener for when a shape is drawn
+map.on(L.Draw.Event.CREATED, function(event) {
+    drawnItems.clearLayers();
+
+    let layer = event.layer;
+    drawnItems.addLayer(layer);
+
+    let latlng = layer.getLatLng();
+
+    layer.bindPopup("Latitude: " + latlng.lat + "<br>Longitude: " + latlng.lng).openPopup();
+
+    document.getElementById('lat').value = latlng.lat;
+    document.getElementById('long').value =  latlng.lng;
+
+});
+
+//update input value when changing marker position
+function updateNode() {
+    var lat = parseFloat(document.getElementById('lat').value);
+    var lng = parseFloat(document.getElementById('long').value);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+        drawnItems.clearLayers();
+        var latLng = L.latLng(lat, lng);
+        var marker = L.marker(latLng);
+        marker.bindPopup("Latitude: " + latLng.lat + "<br>Longitude: " + latLng.lng).openPopup();
+        drawnItems.addLayer(marker);
+        map.setView(latLng);
+    } else {
+        alert('Invalid location input');
+    }
+};
+</script>
+{% endblock content %}
